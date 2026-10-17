@@ -11,19 +11,20 @@
         
         /* Layout structures */
         .main-section, .dynamic-section { max-width: 650px; margin: 0 auto; padding: 20px; }
-        .file-list { margin-top: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .file-list { margin-top: 20px; display: flex; flex-direction: column; gap: 25px; }
         
-        /* Row style for list items */
-        .file-row { display: flex; align-items: center; background: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        /* Card container holding the details and the image below it */
+        .file-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 15px; }
         
-        /* Thumbnail Preview Styles */
-        .preview-box { width: 50px; height: 50px; min-width: 50px; border-radius: 6px; margin-right: 20px; border: 1px solid #ddd; background: #e9ecef; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .preview-img { width: 100%; height: 100%; object-fit: cover; }
-        .placeholder-icon { font-size: 20px; color: #888; font-weight: bold; }
+        /* Top header section of the card */
+        .card-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .file-name { font-weight: bold; font-size: 1.15em; color: #444; word-break: break-all; text-align: left; }
+        
+        /* Large Image Preview Style below the text details */
+        .preview-large-box { width: 100%; max-height: 350px; border-radius: 8px; border: 1px solid #eee; background: #f1f3f5; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .preview-img { width: 100%; height: auto; max-height: 350px; object-fit: contain; display: block; }
+        .placeholder-icon-box { padding: 30px; font-size: 24px; color: #888; font-style: italic; }
 
-        /* File name spacing */
-        .file-name { font-weight: bold; font-size: 1.1em; color: #444; word-break: break-all; text-align: left; flex-grow: 1; margin-right: 15px; }
-        
         /* Download buttons */
         .download-btn { display: inline-block; padding: 12px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.95em; transition: background 0.2s; white-space: nowrap; }
         .download-btn:hover { background: #0056b3; }
@@ -55,54 +56,60 @@
 
         const listContainer = document.getElementById('others-list');
 
-        // Loop through and render rows for each item instantly
+        // Loop through and render blocks for each item instantly
         filesInFolder.forEach(fileName => {
-            const row = document.createElement('div');
-            row.className = 'file-row';
+            // Create a main card wrapper
+            const card = document.createElement('div');
+            card.className = 'file-card';
 
-            // 1. Create the preview box container
-            const previewBox = document.createElement('div');
-            previewBox.className = 'preview-box';
+            // Create the top header wrapper (Name + Button)
+            const header = document.createElement('div');
+            header.className = 'card-header';
 
-            // Construct the path to the file
-            const filePath = `${folderName}/${fileName}`;
-
-            // Check if the file extension looks like an image
-            const lowerName = fileName.toLowerCase();
-            const isImage = lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg') || lowerName.endsWith('.png') || lowerName.endsWith('.gif') || lowerName.endsWith('.webp');
-
-            if (isImage) {
-                // Create image element for the thumbnail preview
-                const img = document.createElement('img');
-                img.src = filePath;
-                img.className = 'preview-img';
-                img.alt = fileName;
-                previewBox.appendChild(img);
-            } else {
-                // Fallback icon placeholder for other file types (like mp3, zip, etc.)
-                const placeholder = document.createElement('span');
-                placeholder.className = 'placeholder-icon';
-                placeholder.textContent = '📄';
-                previewBox.appendChild(placeholder);
-            }
-
-            // 2. Create the file name text div
+            // Create file name text
             const nameDiv = document.createElement('div');
             nameDiv.className = 'file-name';
             nameDiv.textContent = fileName;
 
-            // 3. Create the action download button
+            // Create download action button
+            const filePath = `${folderName}/${fileName}`;
             const downloadLink = document.createElement('a');
             downloadLink.href = filePath;
             downloadLink.setAttribute('download', fileName);
             downloadLink.className = 'download-btn';
             downloadLink.textContent = 'Download';
 
-            // Append everything into the row layout sequentially (Preview -> Name -> Button)
-            row.appendChild(previewBox);
-            row.appendChild(nameDiv);
-            row.appendChild(downloadLink);
-            listContainer.appendChild(row);
+            // Assemble top header row
+            header.appendChild(nameDiv);
+            header.appendChild(downloadLink);
+            card.appendChild(header);
+
+            // Check if the file is an image
+            const lowerName = fileName.toLowerCase();
+            const isImage = lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg') || lowerName.endsWith('.png') || lowerName.endsWith('.gif') || lowerName.endsWith('.webp');
+
+            if (isImage) {
+                // Create a large preview container directly underneath the header controls
+                const previewBox = document.createElement('div');
+                previewBox.className = 'preview-large-box';
+
+                const img = document.createElement('img');
+                img.src = filePath;
+                img.className = 'preview-img';
+                img.alt = fileName;
+
+                previewBox.appendChild(img);
+                card.appendChild(previewBox);
+            } else {
+                // Subtle non-image text placeholder fallback block if you add other types later
+                const placeholderBox = document.createElement('div');
+                placeholderBox.className = 'placeholder-icon-box';
+                placeholderBox.textContent = '📄 Non-Image File';
+                card.appendChild(placeholderBox);
+            }
+
+            // Append the entire built card structure to the page list container
+            listContainer.appendChild(card);
         });
     </script>
 </body>
