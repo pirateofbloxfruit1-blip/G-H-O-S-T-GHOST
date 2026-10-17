@@ -10,15 +10,22 @@
         hr { border: 0; height: 1px; background: #ccc; margin: 40px auto; width: 80%; }
         
         /* Layout structures */
-        .main-section, .dynamic-section { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .main-section, .dynamic-section { max-width: 650px; margin: 0 auto; padding: 20px; }
         .file-list { margin-top: 20px; display: flex; flex-direction: column; gap: 15px; }
         
         /* Row style for list items */
-        .file-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .file-name { font-weight: bold; font-size: 1.1em; color: #444; word-break: break-all; text-align: left; }
+        .file-row { display: flex; align-items: center; background: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        
+        /* Thumbnail Preview Styles */
+        .preview-box { width: 50px; height: 50px; min-width: 50px; border-radius: 6px; margin-right: 20px; border: 1px solid #ddd; background: #e9ecef; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .preview-img { width: 100%; height: 100%; object-fit: cover; }
+        .placeholder-icon { font-size: 20px; color: #888; font-weight: bold; }
+
+        /* File name spacing */
+        .file-name { font-weight: bold; font-size: 1.1em; color: #444; word-break: break-all; text-align: left; flex-grow: 1; margin-right: 15px; }
         
         /* Download buttons */
-        .download-btn { display: inline-block; padding: 12px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.95em; transition: background 0.2s; }
+        .download-btn { display: inline-block; padding: 12px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.95em; transition: background 0.2s; white-space: nowrap; }
         .download-btn:hover { background: #0056b3; }
         .main-btn { padding: 15px 30px; font-size: 1.1em; margin-top: 15px; }
     </style>
@@ -42,7 +49,7 @@
     </div>
 
     <script>
-        // Manually declare your known files to guarantee they load without relying on fluctuating API lookups
+        // Add your file names here whenever you upload new ones to GitHub
         const filesInFolder = ["logo.jpg", "logoalt.jpg", "overlay1.jpg"];
         const folderName = "others";
 
@@ -53,17 +60,46 @@
             const row = document.createElement('div');
             row.className = 'file-row';
 
+            // 1. Create the preview box container
+            const previewBox = document.createElement('div');
+            previewBox.className = 'preview-box';
+
+            // Construct the path to the file
+            const filePath = `${folderName}/${fileName}`;
+
+            // Check if the file extension looks like an image
+            const lowerName = fileName.toLowerCase();
+            const isImage = lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg') || lowerName.endsWith('.png') || lowerName.endsWith('.gif') || lowerName.endsWith('.webp');
+
+            if (isImage) {
+                // Create image element for the thumbnail preview
+                const img = document.createElement('img');
+                img.src = filePath;
+                img.className = 'preview-img';
+                img.alt = fileName;
+                previewBox.appendChild(img);
+            } else {
+                // Fallback icon placeholder for other file types (like mp3, zip, etc.)
+                const placeholder = document.createElement('span');
+                placeholder.className = 'placeholder-icon';
+                placeholder.textContent = '📄';
+                previewBox.appendChild(placeholder);
+            }
+
+            // 2. Create the file name text div
             const nameDiv = document.createElement('div');
             nameDiv.className = 'file-name';
             nameDiv.textContent = fileName;
 
+            // 3. Create the action download button
             const downloadLink = document.createElement('a');
-            // Route directly via relative project pathing
-            downloadLink.href = `${folderName}/${fileName}`;
+            downloadLink.href = filePath;
             downloadLink.setAttribute('download', fileName);
             downloadLink.className = 'download-btn';
             downloadLink.textContent = 'Download';
 
+            // Append everything into the row layout sequentially (Preview -> Name -> Button)
+            row.appendChild(previewBox);
             row.appendChild(nameDiv);
             row.appendChild(downloadLink);
             listContainer.appendChild(row);
