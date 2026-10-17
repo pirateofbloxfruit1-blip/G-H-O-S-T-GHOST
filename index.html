@@ -5,16 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My MP3 Downloads</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px; }
-        .download-btn { display: inline-block; padding: 15px 25px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; }
+        body { font-family: sans-serif; text-align: center; padding: 50px; background-color: #f8f9fa; color: #333; }
+        h1, h2 { margin-bottom: 10px; }
+        hr { border: 0; height: 1px; background: #ccc; margin: 40px auto; width: 80%; }
+        
+        /* Layout structures */
+        .main-section, .dynamic-section { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .file-list { margin-top: 20px; display: flex; flex-direction: column; gap: 15px; }
+        
+        /* Row style for list items */
+        .file-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .file-name { font-weight: bold; font-size: 1.1em; color: #444; word-break: break-all; text-align: left; }
+        
+        /* Download buttons */
+        .download-btn { display: inline-block; padding: 12px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.95em; transition: background 0.2s; }
+        .download-btn:hover { background: #0056b3; }
+        .main-btn { padding: 15px 30px; font-size: 1.1em; margin-top: 15px; }
+        
+        /* Loading and error text styling */
+        .status-msg { color: #777; font-style: italic; margin-top: 15px; }
     </style>
 </head>
 <body>
-    <h1>G-H-O-S-T SOUND EFFECT</h1>
-    <p>Click below to download the file to this device:</p>
-    
-    <!-- Repeat this block for each song you add -->
-    <a href="GHOST.mp3" download="GHOST.mp3" class="download-btn">Download Sound effect</a>
-    
+
+    <!-- Main Section (Your manual sound effect link) -->
+    <div class="main-section">
+        <h1>G-H-O-S-T SOUND EFFECT</h1>
+        <p>Click below to download the primary file to this device:</p>
+        <a href="GHOST.mp3" download="GHOST.mp3" class="download-btn main-btn">Download Sound effect</a>
+    </div>
+
+    <hr>
+
+    <!-- Dynamic Section (Catches everything inside the "others" folder) -->
+    <div class="dynamic-section">
+        <h2>Other Stuff</h2>
+        <p>This list updates itself automatically whenever you drop files into your folder!</p>
+        <div id="loading" class="status-msg">Scanning the "others" folder...</div>
+        <div id="others-list" class="file-list"></div>
+    </div>
+
+    <script>
+        // Configuration: Replace with your GitHub Username
+        const username = "pirateofbloxfruit1-blip"; 
+        const repository = "G-H-O-S-T-GHOST";
+        const folderPath = "others";
+
+        // Fetch directory content using the GitHub Public API
+        const apiUrl = `https://github.com{username}/${repository}/contents/${folderPath}`;
+
+        async function fetchOtherFiles() {
+            const listContainer = document.getElementById('others-list');
+            const loadingText = document.getElementById('loading');
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`Failed to load directory details (${response.status})`);
+                }
+
+                const files = await response.json();
+                
+                // Hide the loading message
+                loadingText.style.display = 'none';
+
+                // Check if folder has items
+                if (files.length === 0) {
+                    listContainer.innerHTML = '<p class="status-msg">The folder is currently empty.</p>';
+                    return;
+                }
+
+                // Loop through every item found in the directory
+                files.forEach(file => {
+                    // Only process actual files (skip subfolders if any exist)
+                    if (file.type === 'file') {
+                        // Create modern item row structure
+                        const row = document.createElement('div');
+                        row.className = 'file-row';
+
+                        // Strip extension for presentation if desired, or leave file.name intact
+                        const nameDiv = document.createElement('div');
+                        nameDiv.className = 'file-name';
+                        nameDiv.textContent = file.name;
+
+                        // Create the download link pointing straight to the raw github delivery URL
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = file.download_url;
+                        downloadLink.setAttribute('download', file.name);
+                        downloadLink.className = 'download-btn';
+                        downloadLink.textContent = 'Download';
+
+                        // Append elements together
+                        row.appendChild(nameDiv);
+                        row.appendChild(downloadLink);
+                        listContainer.appendChild(row);
+                    }
+                });
+
+            } catch (error) {
+                console.error(error);
+                loadingText.textContent = "Error loading your files automatically. Check console details.";
+                loadingText.style.color = "red";
+            }
+        }
+
+        // Run the script instantly on load
+        fetchOtherFiles();
+    </script>
 </body>
 </html>
