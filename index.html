@@ -21,9 +21,6 @@
         .download-btn { display: inline-block; padding: 12px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.95em; transition: background 0.2s; }
         .download-btn:hover { background: #0056b3; }
         .main-btn { padding: 15px 30px; font-size: 1.1em; margin-top: 15px; }
-        
-        /* Loading and error text styling */
-        .status-msg { color: #777; font-style: italic; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -37,80 +34,40 @@
 
     <hr>
 
-    <!-- Dynamic Section (Catches everything inside the "others" folder) -->
+    <!-- Dynamic Section -->
     <div class="dynamic-section">
         <h2>Other Stuff</h2>
-        <p>This list updates itself automatically whenever you drop files into your folder!</p>
-        <div id="loading" class="status-msg">Scanning the "others" folder...</div>
+        <p>Your library collection inside the "others" folder:</p>
         <div id="others-list" class="file-list"></div>
     </div>
 
     <script>
-        // Configuration: Replace with your GitHub Username
-        const username = "pirateofbloxfruit1-blip"; 
-        const repository = "G-H-O-S-T-GHOST";
-        const folderPath = "others";
+        // Manually declare your known files to guarantee they load without relying on fluctuating API lookups
+        const filesInFolder = ["logo.jpg", "logoalt.jpg", "overlay1.jpg"];
+        const folderName = "others";
 
-        // Fetch directory content using the GitHub Public API
-        const apiUrl = `https://github.com{username}/${repository}/contents/${folderPath}`;
+        const listContainer = document.getElementById('others-list');
 
-        async function fetchOtherFiles() {
-            const listContainer = document.getElementById('others-list');
-            const loadingText = document.getElementById('loading');
+        // Loop through and render rows for each item instantly
+        filesInFolder.forEach(fileName => {
+            const row = document.createElement('div');
+            row.className = 'file-row';
 
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error(`Failed to load directory details (${response.status})`);
-                }
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'file-name';
+            nameDiv.textContent = fileName;
 
-                const files = await response.json();
-                
-                // Hide the loading message
-                loadingText.style.display = 'none';
+            const downloadLink = document.createElement('a');
+            // Route directly via relative project pathing
+            downloadLink.href = `${folderName}/${fileName}`;
+            downloadLink.setAttribute('download', fileName);
+            downloadLink.className = 'download-btn';
+            downloadLink.textContent = 'Download';
 
-                // Check if folder has items
-                if (files.length === 0) {
-                    listContainer.innerHTML = '<p class="status-msg">The folder is currently empty.</p>';
-                    return;
-                }
-
-                // Loop through every item found in the directory
-                files.forEach(file => {
-                    // Only process actual files (skip subfolders if any exist)
-                    if (file.type === 'file') {
-                        // Create modern item row structure
-                        const row = document.createElement('div');
-                        row.className = 'file-row';
-
-                        // Strip extension for presentation if desired, or leave file.name intact
-                        const nameDiv = document.createElement('div');
-                        nameDiv.className = 'file-name';
-                        nameDiv.textContent = file.name;
-
-                        // Create the download link pointing straight to the raw github delivery URL
-                        const downloadLink = document.createElement('a');
-                        downloadLink.href = file.download_url;
-                        downloadLink.setAttribute('download', file.name);
-                        downloadLink.className = 'download-btn';
-                        downloadLink.textContent = 'Download';
-
-                        // Append elements together
-                        row.appendChild(nameDiv);
-                        row.appendChild(downloadLink);
-                        listContainer.appendChild(row);
-                    }
-                });
-
-            } catch (error) {
-                console.error(error);
-                loadingText.textContent = "Error loading your files automatically. Check console details.";
-                loadingText.style.color = "red";
-            }
-        }
-
-        // Run the script instantly on load
-        fetchOtherFiles();
+            row.appendChild(nameDiv);
+            row.appendChild(downloadLink);
+            listContainer.appendChild(row);
+        });
     </script>
 </body>
 </html>
