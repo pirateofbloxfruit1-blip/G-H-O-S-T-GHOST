@@ -25,10 +25,15 @@
         .preview-img { width: 100%; height: auto; max-height: 350px; object-fit: contain; display: block; }
         .placeholder-icon-box { padding: 30px; font-size: 24px; color: #888; font-style: italic; }
 
-        /* Download buttons */
+        /* Download and normal buttons */
         .download-btn { display: inline-block; padding: 12px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.95em; transition: background 0.2s; white-space: nowrap; }
         .download-btn:hover { background: #0056b3; }
         .main-btn { padding: 15px 30px; font-size: 1.1em; margin-top: 15px; }
+
+        /* YouTube Subscribe Button Styling */
+        .youtube-section { margin: 60px auto 20px auto; max-width: 650px; padding: 20px; }
+        .subscribe-btn { display: inline-block; padding: 15px 35px; background: #ff0000; color: white; text-decoration: none; border-radius: 30px; font-weight: bold; font-size: 1.1em; box-shadow: 0 4px 10px rgba(255, 0, 0, 0.2); transition: background 0.2s, transform 0.2s; }
+        .subscribe-btn:hover { background: #cc0000; transform: scale(1.03); }
     </style>
 </head>
 <body>
@@ -47,6 +52,11 @@
         <h2>Other Stuff</h2>
         <p>Your library collection inside the "others" folder:</p>
         <div id="others-list" class="file-list"></div>
+    </div>
+
+    <!-- YouTube Subscribe Section at the very bottom -->
+    <div class="youtube-section">
+        <a href="https://www.youtube.com/@GHOSTEDITZ077-7" target="_blank" class="subscribe-btn">Subscribe to GHOST EDITZ</a>
     </div>
 
     <script>
