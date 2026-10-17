@@ -11,19 +11,26 @@
         
         /* Layout structures */
         .main-section, .dynamic-section { max-width: 650px; margin: 0 auto; padding: 20px; }
-        .file-list { margin-top: 20px; display: flex; flex-direction: column; gap: 25px; }
+        .section-title { font-size: 1.8em; margin-top: 40px; margin-bottom: 20px; text-align: left; border-bottom: 2px solid #ddd; padding-bottom: 8px; }
+        .file-list { display: flex; flex-direction: column; gap: 25px; margin-bottom: 40px; }
         
-        /* Card container holding the details and the image below it */
+        /* Card container holding the details and the media below it */
         .file-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 15px; }
         
         /* Top header section of the card */
         .card-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .file-name { font-weight: bold; font-size: 1.15em; color: #444; word-break: break-all; text-align: left; }
         
-        /* Large Image Preview Style below the text details */
-        .preview-large-box { width: 100%; max-height: 350px; border-radius: 8px; border: 1px solid #eee; background: #f1f3f5; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        /* Large Media Preview Styles below the text details */
+        .preview-large-box { width: 100%; max-height: 350px; border-radius: 8px; border: 1px solid #eee; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
         .preview-img { width: 100%; height: auto; max-height: 350px; object-fit: contain; display: block; }
-        .placeholder-icon-box { padding: 30px; font-size: 24px; color: #888; font-style: italic; }
+        
+        /* Video frame adjustments */
+        .preview-video { width: 100%; max-height: 350px; display: block; object-fit: contain; cursor: pointer; }
+        
+        /* Empty or Fallback messages */
+        .placeholder-icon-box { padding: 30px; font-size: 24px; color: #888; font-style: italic; background: #f1f3f5; border-radius: 8px; }
+        .empty-text { color: #dc3545; font-style: italic; font-weight: bold; font-size: 1.1em; padding: 20px; text-align: center; }
 
         /* Download and normal buttons */
         .download-btn { display: inline-block; padding: 12px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.95em; transition: background 0.2s; white-space: nowrap; }
@@ -47,27 +54,41 @@
 
     <hr>
 
-    <!-- Dynamic Section -->
+    <!-- Library Container -->
     <div class="dynamic-section">
-        <h2>Other Stuff</h2>
-        <p>Your library collection inside the "others" folder:</p>
-        <div id="others-list" class="file-list"></div>
+        
+        <!-- Images Section -->
+        <div class="section-title">Other Images</div>
+        <div id="images-list" class="file-list"></div>
+        
+        <!-- Videos Section -->
+        <div class="section-title">Videos</div>
+        <div id="videos-list" class="file-list"></div>
+        
     </div>
 
     <!-- YouTube Subscribe Section at the very bottom -->
     <div class="youtube-section">
-        <a href="https://www.youtube.com/@GHOSTEDITZ077-7" target="_blank" class="subscribe-btn">Subscribe to GHOST EDITZ</a>
+        <a href="https://youtube.com" target="_blank" class="subscribe-btn">Subscribe to GHOST EDITZ</a>
     </div>
 
     <script>
-        // Add your file names here whenever you upload new ones to GitHub
+        // Update this list whenever you upload items to your "others" folder
         const filesInFolder = ["logo.jpg", "logoalt.jpg", "overlay1.jpg"];
         const folderName = "others";
 
-        const listContainer = document.getElementById('others-list');
+        const imagesContainer = document.getElementById('images-list');
+        const videosContainer = document.getElementById('videos-list');
 
-        // Loop through and render blocks for each item instantly
+        let imageCount = 0;
+        let videoCount = 0;
+
+        // Loop through and categorize each item instantly
         filesInFolder.forEach(fileName => {
+            const lowerName = fileName.toLowerCase();
+            const isImage = lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg') || lowerName.endsWith('.png') || lowerName.endsWith('.gif') || lowerName.endsWith('.webp');
+            const isVideo = lowerName.endsWith('.mp4') || lowerName.endsWith('.webm') || lowerName.endsWith('.ogg');
+
             // Create a main card wrapper
             const card = document.createElement('div');
             card.className = 'file-card';
@@ -76,10 +97,10 @@
             const header = document.createElement('div');
             header.className = 'card-header';
 
-            // Create file name text
+            // Create file name text (Appends indicator tag if it is a video)
             const nameDiv = document.createElement('div');
             nameDiv.className = 'file-name';
-            nameDiv.textContent = fileName;
+            nameDiv.textContent = isVideo ? `${fileName} (video)` : fileName;
 
             // Create download action button
             const filePath = `${folderName}/${fileName}`;
@@ -89,17 +110,12 @@
             downloadLink.className = 'download-btn';
             downloadLink.textContent = 'Download';
 
-            // Assemble top header row
             header.appendChild(nameDiv);
             header.appendChild(downloadLink);
             card.appendChild(header);
 
-            // Check if the file is an image
-            const lowerName = fileName.toLowerCase();
-            const isImage = lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg') || lowerName.endsWith('.png') || lowerName.endsWith('.gif') || lowerName.endsWith('.webp');
-
+            // Handle Render and Target Distribution
             if (isImage) {
-                // Create a large preview container directly underneath the header controls
                 const previewBox = document.createElement('div');
                 previewBox.className = 'preview-large-box';
 
@@ -110,17 +126,52 @@
 
                 previewBox.appendChild(img);
                 card.appendChild(previewBox);
-            } else {
-                // Subtle non-image text placeholder fallback block if you add other types later
-                const placeholderBox = document.createElement('div');
-                placeholderBox.className = 'placeholder-icon-box';
-                placeholderBox.textContent = '📄 Non-Image File';
-                card.appendChild(placeholderBox);
-            }
+                
+                imagesContainer.appendChild(card);
+                imageCount++;
+            } 
+            else if (isVideo) {
+                const previewBox = document.createElement('div');
+                previewBox.className = 'preview-large-box';
 
-            // Append the entire built card structure to the page list container
-            listContainer.appendChild(card);
+                const video = document.createElement('video');
+                video.src = filePath;
+                video.className = 'preview-video';
+                video.preload = 'metadata';
+                video.playsInline = true;
+
+                // Toggle playback on click/tap
+                video.addEventListener('click', () => {
+                    if (video.paused) {
+                        video.play();
+                    } else {
+                        video.pause();
+                    }
+                });
+
+                // Reset when video ends
+                video.addEventListener('ended', () => {
+                    video.pause();
+                    video.currentTime = 0;
+                });
+
+                previewBox.appendChild(video);
+                card.appendChild(previewBox);
+                
+                videosContainer.appendChild(card);
+                videoCount++;
+            }
         });
+
+        // If no images are available, display a simple message
+        if (imageCount === 0) {
+            imagesContainer.innerHTML = '<div class="empty-text">nothing here...</div>';
+        }
+
+        // If no videos are available, display the required red message
+        if (videoCount === 0) {
+            videosContainer.innerHTML = '<div class="empty-text">nothing here...</div>';
+        }
     </script>
 </body>
 </html>
